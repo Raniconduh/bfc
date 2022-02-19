@@ -41,8 +41,8 @@ done
 [ -z "$ofile" ] && { echo "must specify output file" >&2; exit 1; }
 [ -z "$ifile" ] && { echo "must specify input file" >&2; exit 1; }
 
-TMP_ASM="$(mktemp --suffix='.asm')"
-TMP_O="$(mktemp --suffix='.o')"
+TMP_ASM="$(mktemp)"
+TMP_O="$(mktemp)"
 
 $BFC -o "$TMP_ASM" "$ifile"
 as -o "$TMP_O" "$TMP_ASM"
