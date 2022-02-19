@@ -3,8 +3,8 @@
 #include <stdlib.h>
 
 #define FPUTS(s, f) do { 	\
-		fputs(s, f);	\
-		fputc('\n', f);	\
+		fputs(s, f);	    \
+		fputc('\n', f);	    \
 	} while (0)
 
 #define STACK "stack"
@@ -99,13 +99,13 @@
 #define MKE_STACK STACK ": " FILL(STACK_SIZE)
 #define INIT LBL_MAIN ":" NL "mov " VAR_REF STACK "," REG_REF PTR_REG
 
-#define BFPUTCH "mov $" HW_WRITE ",%rax" NL \
-                "mov $1,%rdi" NL \
+#define BFPUTCH "mov $" HW_WRITE ",%rax" NL       \
+                "mov $1,%rdi" NL                  \
 				"mov " REG_REF PTR_REG ",%rsi" NL \
 				"mov $1, %rdx"
 
-#define BFGETCH "mov $" HW_READ ",%rax" NL \
-                "mov $0,%rdi" NL \
+#define BFGETCH "mov $" HW_READ ",%rax" NL        \
+                "mov $0,%rdi" NL                  \
 				"mov " REG_REF PTR_REG ",%rsi" NL \
 				"mov $1, %rdx"
 
@@ -119,7 +119,7 @@
                  "jnz loop_%d" NL
 
 #define END_TEXT "mov $" HW_EXIT ",%rax"  NL \
-                 "mov $0,%rdi" NL \
+                 "mov $0,%rdi" NL            \
                  "syscall" NL
 
 #define HD_TEXT DATA NL MKE_STACK NL TEXT NL GLOBAL(LBL_MAIN) NL INIT
