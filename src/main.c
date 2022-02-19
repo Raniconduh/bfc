@@ -1,7 +1,11 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
-#define FPUTS(s, f) fputs(s, f); fputc('\n', f)
+#define FPUTS(s, f) do { 	\
+		fputs(s, f);	\
+		fputc('\n', f);	\
+	} while (0)
 
 #define STACK "stack"
 #define STACK_SIZE "256"
@@ -69,9 +73,9 @@
 #elif defined(amd64) || defined(x86_64)
 
 #ifdef __linux__
-#define HW_WRITE "64"
-#define HW_READ "63"
-#define HW_EXIT "93"
+#define HW_WRITE "1"
+#define HW_READ "0"
+#define HW_EXIT "60"
 #endif /* __linux__ */
 
 #ifdef __FreeBSD__
@@ -157,7 +161,7 @@ void help(void) {
 }
 
 struct op * new_op(void) {
-	struct op * n = malloc(sizeof(struct op) + 8);
+	struct op * n = malloc(sizeof(struct op));
 	n->next = NULL;
 	n->operator = 0;
 	n->count = 0;
@@ -188,8 +192,6 @@ int main(int argc, char ** argv) {
 
 	struct op * ops = new_op();
 	struct op * n = ops;
-
-	n->next = new_op();
 
 	int c;
 	while ((c = fgetc(input_file)) != EOF) {
@@ -270,8 +272,11 @@ int main(int argc, char ** argv) {
 
 	fclose(output_file);
 
-	for (struct op * o = ops; o; o = o ->next) {
-		free(o);
+	struct op * o = ops;
+	while (o) {
+		struct op *tmp = o;
+		o = o->next;
+		free(tmp);
 	}
 
 	return 0;
