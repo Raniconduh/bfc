@@ -8,6 +8,11 @@ RM?=rm -f
 
 .PHONY: all clean
 
+x86_64: amd64
+
+amd64:
+	$(CC) $(CFLAGS) -Damd64 -o $(DEST) $(SOURCES) $(LIBS)
+
 arm64: aarch64
 
 aarch64:

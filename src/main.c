@@ -7,10 +7,11 @@
 #define STACK_SIZE "256"
 #define NL "\n"
 
-#if defined(arm64) || defined(aarch64)
 #define DATA ".data"
 #define TEXT ".text"
 #define GLOBAL(VAR) ".globl " VAR
+
+#if defined(arm64) || defined(aarch64)
 #define PTR_REG "x11"
 #define W_REG "w10"
 #define LBL_MAIN "_start"
@@ -60,9 +61,69 @@
 #define END_TEXT "mov x0,#0"  NL \
                  "mov w8,#93" NL \
                  "svc #0"
-#endif // arm64 || aarch6
 
 #define HD_TEXT DATA NL MKE_STACK NL TEXT NL GLOBAL(LBL_MAIN) NL INIT
+
+#define CAN_MULTI_CALL 1
+
+#elif defined(amd64) || defined(x86_64)
+
+#ifdef __linux__
+#define HW_WRITE "64"
+#define HW_READ "63"
+#define HW_EXIT "93"
+#endif /* __linux__ */
+
+#ifdef __FreeBSD__
+#define HW_WRITE "4"
+#define HW_READ "3"
+#define HW_EXIT "1"
+#endif /* __FreeBSD__ */
+
+#define PTR_REG "r12"
+#define LBL_MAIN "_start"
+#define SYS_CALL "syscall"
+
+#define REG_REF "%"
+#define VAR_REF "$"
+
+#define ADD(R, N) "add " VAR_REF #N "," #R
+
+#define DEREF(REG) "(" REG_REF REG ")"
+#define FILL(N) ".zero " N
+
+#define MKE_STACK STACK ": " FILL(STACK_SIZE)
+#define INIT LBL_MAIN ":" NL "mov " VAR_REF STACK "," REG_REF PTR_REG
+
+#define BFPUTCH "mov $" HW_WRITE ",%rax" NL \
+                "mov $1,%rdi" NL \
+				"mov " REG_REF PTR_REG ",%rsi" NL \
+				"mov $1, %rdx"
+
+#define BFGETCH "mov $" HW_READ ",%rax" NL \
+                "mov $0,%rdi" NL \
+				"mov " REG_REF PTR_REG ",%rsi" NL \
+				"mov $1, %rdx"
+
+#define BFADDV "addb $%d,(%%" PTR_REG ")" NL
+#define BFSUBV "subb $%d,(%%" PTR_REG ")" NL
+
+#define BFADDP "add $%d, %%" PTR_REG NL
+#define BFSUBP "sub $%d, %%" PTR_REG NL
+
+#define BFJMPLBL "cmpb $0, (%%" PTR_REG ")" NL \
+                 "jnz loop_%d" NL
+
+#define END_TEXT "mov $" HW_EXIT ",%rax"  NL \
+                 "mov $0,%rdi" NL \
+                 "syscall" NL
+
+#define HD_TEXT DATA NL MKE_STACK NL TEXT NL GLOBAL(LBL_MAIN) NL INIT
+
+#define CAN_MULTI_CALL 0
+
+#endif
+
 
 int loops = 0;
 int labels[128] = {0};
@@ -178,14 +239,16 @@ int main(int argc, char ** argv) {
 				fprintf(output_file, BFSUBP, o->count + 1);
 				break;
 			case '.':
-				FPUTS(BFPUTCH, output_file);
+				if (CAN_MULTI_CALL) FPUTS(BFPUTCH, output_file);
 				for (int i = 0; i < o->count + 1; i++) {
+					if (!CAN_MULTI_CALL) FPUTS(BFPUTCH, output_file);
 					FPUTS(SYS_CALL, output_file);
 				}
 				break;
 			case ',':
-				FPUTS(BFGETCH, output_file);
+				if (CAN_MULTI_CALL) FPUTS(BFGETCH, output_file);
 				for (int i = 0; i < o->count + 1; i++) {
+					if (!CAN_MULTI_CALL) FPUTS(BFGETCH, output_file);
 					FPUTS(SYS_CALL, output_file);
 				}
 				break;
