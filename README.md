@@ -20,6 +20,7 @@ $ as -o hello.o hello.asm
 $ ld -o hello hello.o
 $ ./hello
 Hello World!
+```
 
 Optionally, you may use the `comp.sh` script to compile without having to manually specify the linker nor assembler as well as to keep the current directory from filling up with assembly and object files.
 
