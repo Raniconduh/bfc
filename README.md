@@ -4,7 +4,7 @@ A compiler for the bf esoteric programming language. The compiler takes a bf sou
 
 ## Compilation
 
-Type `make <ARCH>` but replace `<ARCH>` with your CPU's architecture. On 64 bit arm systems, this us either `arm64` or `amd64`. On 64 bit desktop PCs, this is most likely `x86_64` or `amd64`.
+Type `make <ARCH>` but replace `<ARCH>` with your CPU's architecture. On 64 bit arm systems, this us either `arm64` or `aarch64`. On 64 bit desktop PCs, this is most likely `x86_64` or `amd64`.
 
 ## Running
 
